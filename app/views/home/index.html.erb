@@ -1,0 +1,221 @@
+<!-- app/views/home/index.html.erb -->
+<% if logged_in? %>
+  <% if current_user.student? %>
+    <!-- Student Dashboard -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="card-title">Welcome, <%= current_user.user_name %></h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Left column for courses -->
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>My Courses</h3>
+            <%= link_to 'Browse All Courses', courses_path, class: 'btn btn-primary' %>
+          </div>
+          <div class="card-body">
+            <% if @enrollments.present? %>
+              <div class="row row-cols-1 row-cols-md-2 g-4">
+                <% @enrollments.each do |enrollment| %>
+                  <div class="col">
+                    <div class="card h-100 shadow-sm">
+                      <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><%= enrollment.course.course_name %></h5>
+                      </div>
+                      <div class="card-body">
+                        <p class="card-text"><%= truncate(enrollment.course.description, length: 80) %></p>
+                        <p class="card-text"><small class="text-muted">Instructor: <%= enrollment.course.instructor.user_name %></small></p>
+                      </div>
+                      <div class="card-footer bg-white">
+                        <%= link_to 'View Course', course_path(enrollment.course), class: 'btn btn-sm btn-primary' %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="alert alert-info">
+                <p>You are not enrolled in any courses yet.</p>
+                <%= link_to 'Browse Available Courses', courses_path, class: 'btn btn-primary' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Recent activity section -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Activity</h3>
+          </div>
+          <div class="card-body">
+            <% if @recent_submissions.present? %>
+              <div class="list-group">
+                <% @recent_submissions.each do |submission| %>
+                  <a href="<%= course_assignment_path(submission.assignment.course, submission.assignment) %>" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">Submitted: <%= submission.assignment.ass_title %></h5>
+                      <small><%= time_ago_in_words(submission.submit_time) %> ago</small>
+                    </div>
+                    <p class="mb-1">Course: <%= submission.assignment.course.course_name %></p>
+                    <% if submission.grade %>
+                      <span class="badge bg-success">Grade: <%= submission.grade %></span>
+                    <% else %>
+                      <span class="badge bg-warning text-dark">Not graded yet</span>
+                    <% end %>
+                  </a>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-center">No recent activity.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right column for upcoming assignments and profile summary -->
+      <div class="col-lg-4">
+        <!-- Profile summary -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>My Profile</h3>
+            <%= link_to 'Edit', edit_user_path(current_user), class: 'btn btn-sm btn-secondary' %>
+          </div>
+          <div class="card-body">
+            <% if current_user.profile.present? %>
+              <p><strong>Major:</strong> <%= current_user.profile.major %></p>
+              <p><strong>Phone:</strong> <%= current_user.profile.phone_num %></p>
+              <p><strong>Address:</strong> <%= truncate(current_user.profile.address, length: 30) %></p>
+            <% else %>
+              <p>Profile information not available.</p>
+            <% end %>
+            <%= link_to 'View Full Profile', user_path(current_user), class: 'btn btn-primary w-100' %>
+          </div>
+        </div>
+        
+        <!-- Upcoming assignments -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Upcoming Assignments</h3>
+          </div>
+          <div class="card-body">
+            <% if @upcoming_assignments.present? %>
+              <div class="list-group">
+                <% @upcoming_assignments.each do |assignment| %>
+                  <a href="<%= course_assignment_path(assignment.course, assignment) %>" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1"><%= assignment.ass_title %></h5>
+                    </div>
+                    <p class="mb-1">Course: <%= assignment.course.course_name %></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-danger">Due: <%= assignment.due_date.strftime("%b %d, %Y %H:%M") %></small>
+                      <small>(<%= distance_of_time_in_words(Time.current, assignment.due_date) %> left)</small>
+                    </div>
+                  </a>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-center">No upcoming assignments.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  <% elsif current_user.instructor? %>
+    <!-- Instructor Dashboard -->
+    <h2>Instructor Dashboard</h2>
+    <% if @courses.present? %>
+      <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <% @courses.each do |course| %>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title"><%= course.course_name %></h5>
+                <p class="card-text"><%= truncate(course.description, length: 100) %></p>
+                <p class="card-text"><small class="text-muted">Term: <%= course.term %></small></p>
+                <%= link_to 'Manage Course', course_path(course), class: 'btn btn-primary' %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <h2>Recent Submissions</h2>
+      <% if @recent_submissions.present? %>
+        <div class="list-group">
+          <% @recent_submissions.each do |submission| %>
+            <a href="<%= course_assignment_path(submission.assignment.course, submission.assignment) %>" class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1"><%= submission.assignment.ass_title %></h5>
+                <small><%= time_ago_in_words(submission.submit_time) %> ago</small>
+              </div>
+              <p class="mb-1">Submitted by: <%= submission.user.user_name %></p>
+              <small><%= submission.assignment.course.course_name %></small>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <p>No submissions to grade.</p>
+      <% end %>
+    <% else %>
+      <div class="alert alert-info">
+        <p>You don't have any courses yet.</p>
+        <%= link_to 'Create Course', new_course_path, class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+    
+  <% else %> <!-- Admin -->
+    <!-- Admin Dashboard -->
+    <div class="row row-cols-1 row-cols-md-4 g-4 text-center">
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Users</h5>
+            <p class="card-text display-4"><%= @total_users %></p>
+            <%= link_to 'Manage Users', users_path, class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Courses</h5>
+            <p class="card-text display-4"><%= @total_courses %></p>
+            <%= link_to 'Manage Courses', courses_path, class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Assignments</h5>
+            <p class="card-text display-4"><%= @total_assignments %></p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Submissions</h5>
+            <p class="card-text display-4"><%= @total_submissions %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <!-- Login/Landing page -->
+  <div class="jumbotron">
+    <h1 class="display-4">Welcome to McMaster Student Management</h1>
+    <p class="lead">A platform for managing courses, assignments, and more.</p>
+    <hr class="my-4">
+    <p>Please login or sign up to access the platform.</p>
+    <div class="d-flex gap-2">
+      <%= link_to 'Login', login_path, class: 'btn btn-primary' %>
+      <%= link_to 'Sign Up', signup_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+<% end %>

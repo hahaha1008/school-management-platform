@@ -1,0 +1,85 @@
+<!-- app/views/users/new.html.erb -->
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-center">Sign Up</h2>
+      </div>
+      <div class="card-body">
+        <%= form_with model: @user, local: true do |f| %>
+          <% if @user.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
+              <ul>
+                <% @user.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          
+          <div class="mb-3">
+            <%= f.label :user_name, class: "form-label" %>
+            <%= f.text_field :user_name, class: "form-control", required: true %>
+          </div>
+          
+          <div class="mb-3">
+            <%= f.label :password, class: "form-label" %>
+            <%= f.password_field :password, class: "form-control", required: true %>
+          </div>
+          
+          <div class="mb-3">
+            <%= f.label :role, class: "form-label" %>
+            <%= f.select :role, [['Student', 'student'], ['Instructor', 'instructor']], 
+                         { include_blank: 'Select Role' }, { class: "form-select", required: true } %>
+          </div>
+          
+          <h4 class="mt-4">Profile Information</h4>
+          
+          <%= f.fields_for :profile do |profile_form| %>
+            <div class="mb-3">
+              <%= profile_form.label :phone_num, "Phone Number", class: "form-label" %>
+              <%= profile_form.telephone_field :phone_num, class: "form-control", required: true %>
+            </div>
+            
+            <div class="mb-3">
+              <%= profile_form.label :address, class: "form-label" %>
+              <%= profile_form.text_area :address, class: "form-control", required: true %>
+            </div>
+            
+            <div class="mb-3 student-field">
+              <%= profile_form.label :major, class: "form-label" %>
+              <%= profile_form.text_field :major, class: "form-control" %>
+              <small class="form-text text-muted">Required for students</small>
+            </div>
+          <% end %>
+          
+          <div class="d-grid">
+            <%= f.submit "Sign Up", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-footer text-center">
+        Already have an account? <%= link_to "Login", login_path %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.querySelector('#user_role');
+    const studentFields = document.querySelectorAll('.student-field');
+    
+    function toggleStudentFields() {
+      if (roleSelect.value === 'student') {
+        studentFields.forEach(field => field.style.display = 'block');
+      } else {
+        studentFields.forEach(field => field.style.display = 'none');
+      }
+    }
+    
+    toggleStudentFields();
+    roleSelect.addEventListener('change', toggleStudentFields);
+  });
+</script>

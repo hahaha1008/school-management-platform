@@ -1,0 +1,34 @@
+<!-- app/views/assignments/_form.html.erb -->
+<%= form_with model: [@course, @assignment], local: true do |f| %>
+  <% if @assignment.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@assignment.errors.count, "error") %> prohibited this assignment from being saved:</h4>
+      <ul>
+        <% @assignment.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="mb-3">
+    <%= f.label :ass_title, "Assignment Title", class: "form-label" %>
+    <%= f.text_field :ass_title, class: "form-control", required: true %>
+  </div>
+  
+  <div class="mb-3">
+    <%= f.label :ass_description, "Description", class: "form-label" %>
+    <%= f.text_area :ass_description, rows: 5, class: "form-control", required: true %>
+    <div class="form-text">Provide clear instructions for students to complete this assignment.</div>
+  </div>
+  
+  <div class="mb-3">
+    <%= f.label :due_date, "Due Date", class: "form-label" %>
+    <%= f.datetime_local_field :due_date, class: "form-control", required: true %>
+  </div>
+  
+  <div class="d-flex justify-content-between">
+    <%= link_to 'Cancel', course_path(@course), class: "btn btn-secondary" %>
+    <%= f.submit "Create Assignment", class: "btn btn-primary" %>
+  </div>
+<% end %>

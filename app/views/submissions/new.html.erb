@@ -1,0 +1,51 @@
+<!-- app/views/submissions/new.html.erb -->
+<div class="card shadow">
+  <div class="card-header bg-primary text-white">
+    <h2 class="mb-0">Submit Assignment: <%= @assignment.ass_title %></h2>
+  </div>
+  <div class="card-body">
+    <%= form_with model: [@course, @assignment, @submission], local: true do |f| %>
+      <% if @submission.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@submission.errors.count, "error") %> prohibited this submission from being saved:</h4>
+          <ul>
+            <% @submission.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+      
+      <div class="mb-4">
+        <h5>Assignment Details</h5>
+        <div class="card mb-3">
+          <div class="card-body">
+            <%= simple_format(@assignment.ass_description) %>
+          </div>
+        </div>
+        <p><strong>Due Date:</strong> <%= @assignment.due_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+        
+        <% if @assignment.due_date < Time.current %>
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            This assignment is past due. Late submissions may affect your grade.
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Your Submission</label>
+        <!-- In a real app, you would include file upload or text content fields -->
+        <%= f.text_area :content, rows: 8, class: "form-control", placeholder: "Type your answer here or describe your solution...", required: true %>
+        <div class="form-text">
+          Enter your answer or describe your solution. In a complete version of this app, you would be able to upload files.
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between">
+        <%= link_to 'Cancel', course_assignment_path(@course, @assignment), class: "btn btn-secondary" %>
+        <%= f.submit "Submit Assignment", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

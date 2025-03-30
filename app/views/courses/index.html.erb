@@ -1,0 +1,146 @@
+<!-- app/views/courses/index.html.erb -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2>Available Courses</h2>
+    <% if current_user.instructor? || current_user.admin? %>
+      <%= link_to 'Create New Course', new_course_path, class: 'btn btn-primary' %>
+    <% end %>
+  </div>
+  <div class="card-body">
+    <% if @courses.any? %>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% @courses.each do |course| %>
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded">
+              <!-- Course image - using placeholders for now, can be replaced with actual images -->
+              <% 
+                # Assign different placeholder images based on course ID or other criteria
+                image_urls = [
+                  "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1492305175278-3b3afaa2f31f?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1492305175278-3b3afaa2f31f?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1000&auto=format&fit=crop"
+                ]
+                img_url = image_urls[course.id % 4]
+              %>
+              <div class="course-image-container" style="height: 160px; overflow: hidden;">
+                <img src="<%= img_url %>" class="card-img-top" alt="<%= course.course_name %>" style="object-fit: cover; height: 100%; width: 100%;">
+              </div>
+              
+              <div class="card-body">
+                <h5 class="card-title fw-bold">
+                  <%= "SEP #{700 + course.id}:#{course.course_name}" %>
+                </h5>
+                <p class="text-muted mb-2"><%= "#{Date.today.year} Winter" %></p>
+                <p class="card-text small"><%= truncate(course.description, length: 100) %></p>
+              </div>
+              
+              <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                <% if current_user.student? %>
+                  <% enrollment = current_user.enrollments.find_by(course_id: course.id) %>
+                  <% if enrollment %>
+                    <% if enrollment.status == 'active' %>
+                      <span class="badge bg-success py-2 px-3">Enrolled</span>
+                      <%= link_to course_enrollment_path(course, enrollment), 
+                          method: :delete, 
+                          data: { confirm: 'Are you sure you want to drop this course?' },
+                          class: 'btn btn-sm btn-outline-danger' do %>
+                        <i class="bi bi-dash-circle"></i> Drop
+                      <% end %>
+                    <% else %>
+                      <span class="badge bg-secondary"><%= enrollment.status.capitalize %></span>
+                    <% end %>
+                  <% else %>
+                    <%= button_to course_enrollments_path(course), 
+                        method: :post, 
+                        class: 'btn btn-sm btn-success' do %>
+                      <i class="bi bi-plus-circle"></i> Enroll
+                    <% end %>
+                  <% end %>
+                <% end %>
+                
+                <% if enrollment && enrollment.status == 'active' %>
+                  <div class="d-flex align-items-center">
+                    <span class="text-muted small me-2">28</span>
+                    <i class="bi bi-chat-left-text text-muted"></i>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="bi bi-journal-x" style="font-size: 4rem; color: #ccc;"></i>
+        <h3 class="mt-4">No courses available</h3>
+        <p class="text-muted">There are currently no courses available in the system.</p>
+        
+        <% if current_user.instructor? || current_user.admin? %>
+          <div class="mt-4">
+            <%= link_to new_course_path, class: 'btn btn-primary px-4' do %>
+              <i class="bi bi-plus-circle"></i> Add a New Course
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Section to display enrolled courses for students -->
+<% if current_user.student? && current_user.enrollments.active.any? %>
+  <div class="card">
+    <div class="card-header">
+      <h3>My Enrolled Courses</h3>
+    </div>
+    <div class="card-body">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% current_user.enrollments.active.includes(:course).each do |enrollment| %>
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm rounded">
+              <!-- Course image - using placeholders for now -->
+              <% 
+                image_urls = [
+                  "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1492305175278-3b3afaa2f31f?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1492305175278-3b3afaa2f31f?q=80&w=1000&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1000&auto=format&fit=crop"
+                ]
+                img_url = image_urls[enrollment.course.id % 4]
+              %>
+              <div class="course-image-container" style="height: 160px; overflow: hidden;">
+                <img src="<%= img_url %>" class="card-img-top" alt="<%= enrollment.course.course_name %>" style="object-fit: cover; height: 100%; width: 100%;">
+              </div>
+              
+              <div class="card-body">
+                <h5 class="card-title fw-bold">
+                  <%= "SEP #{700 + enrollment.course.id}:#{enrollment.course.course_name}" %>
+                </h5>
+                <p class="text-muted mb-2"><%= "#{Date.today.year} Winter" %></p>
+                <p class="card-text small"><%= truncate(enrollment.course.description, length: 100) %></p>
+              </div>
+              
+              <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                <%= link_to course_path(enrollment.course), class: 'btn btn-sm btn-primary' do %>
+                  <i class="bi bi-book"></i> View Course
+                <% end %>
+                
+                <div class="d-flex align-items-center">
+                  <span class="text-muted small me-2">28</span>
+                  <i class="bi bi-chat-left-text text-muted"></i>
+                </div>
+            </div>
+                
+                <div class="d-flex align-items-center">
+                  <span class="text-muted small me-2">28</span>
+                  <i class="bi bi-chat-left-text text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

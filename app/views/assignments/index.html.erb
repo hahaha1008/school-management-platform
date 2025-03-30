@@ -1,0 +1,102 @@
+<!-- app/views/assignments/index.html.erb -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2>Assignments for <%= @course.course_name %></h2>
+    <div>
+      <% if current_user.admin? || (current_user.instructor? && @course.instructor_id == current_user.id) %>
+        <%= link_to 'New Assignment', new_course_assignment_path(@course), class: 'btn btn-primary' %>
+      <% end %>
+      <%= link_to 'Back to Course', course_path(@course), class: 'btn btn-secondary' %>
+    </div>
+  </div>
+  <div class="card-body">
+    <% if @assignments.any? %>
+      <ul class="nav nav-tabs mb-4" id="assignmentTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+            Upcoming
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">
+            Past
+          </button>
+        </li>
+      </ul>
+      
+      <div class="tab-content" id="assignmentTabsContent">
+        <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+          <% upcoming = @assignments.upcoming.order(due_date: :asc) %>
+          <% if upcoming.any? %>
+            <div class="list-group">
+              <% upcoming.each do |assignment| %>
+                <a href="<%= course_assignment_path(@course, assignment) %>" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><%= assignment.ass_title %></h5>
+                    <small class="text-danger">Due: <%= assignment.due_date.strftime("%b %d, %Y %H:%M") %></small>
+                  </div>
+                  <p class="mb-1"><%= truncate(assignment.ass_description, length: 150) %></p>
+                  
+                  <% if current_user.student? %>
+                    <% submission = current_user.submissions.find_by(assignment_id: assignment.id) %>
+                    <% if submission %>
+                      <small class="text-success">Submitted: <%= submission.submit_time.strftime("%b %d, %Y %H:%M") %></small>
+                    <% else %>
+                      <small class="text-warning">Not submitted</small>
+                    <% end %>
+                  <% else %>
+                    <small><%= assignment.submissions.count %> submissions</small>
+                  <% end %>
+                </a>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-center">No upcoming assignments.</p>
+          <% end %>
+        </div>
+        
+        <div class="tab-pane fade" id="past" role="tabpanel">
+          <% past = @assignments.past.order(due_date: :desc) %>
+          <% if past.any? %>
+            <div class="list-group">
+              <% past.each do |assignment| %>
+                <a href="<%= course_assignment_path(@course, assignment) %>" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><%= assignment.ass_title %></h5>
+                    <small class="text-muted">Due: <%= assignment.due_date.strftime("%b %d, %Y %H:%M") %></small>
+                  </div>
+                  <p class="mb-1"><%= truncate(assignment.ass_description, length: 150) %></p>
+                  
+                  <% if current_user.student? %>
+                    <% submission = current_user.submissions.find_by(assignment_id: assignment.id) %>
+                    <% if submission %>
+                      <small class="text-success">Submitted: <%= submission.submit_time.strftime("%b %d, %Y %H:%M") %></small>
+                      <% if submission.grade %>
+                        <span class="badge bg-success">Grade: <%= submission.grade %></span>
+                      <% else %>
+                        <span class="badge bg-warning text-dark">Not graded</span>
+                      <% end %>
+                    <% else %>
+                      <small class="text-danger">Not submitted</small>
+                    <% end %>
+                  <% else %>
+                    <small><%= assignment.submissions.count %> submissions</small>
+                  <% end %>
+                </a>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-center">No past assignments.</p>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <p class="text-center">No assignments available for this course.</p>
+      <% if current_user.admin? || (current_user.instructor? && @course.instructor_id == current_user.id) %>
+        <div class="text-center mt-3">
+          <%= link_to 'Create First Assignment', new_course_assignment_path(@course), class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
