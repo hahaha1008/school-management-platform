@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# Force platform to ensure compatibility
-bundle config set --local force_ruby_platform true
-bundle config set --local without development test
-bundle install
+# Use the simplified Gemfile for Render
+if [ -f Gemfile.render ]; then
+  mv Gemfile.render Gemfile
+fi
+
+# Clean any existing lock file
+if [ -f Gemfile.lock ]; then
+  rm Gemfile.lock
+fi
+
+# Install dependencies
+bundle install --without development test
 
 # Asset compilation
 bundle exec rake assets:precompile
