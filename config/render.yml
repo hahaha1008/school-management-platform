@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mcmaster-student-mgmt
+    env: ruby
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mcmaster_db
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+
+databases:
+  - name: mcmaster_db
+    databaseName: mcmaster_production
+    user: mcmaster
