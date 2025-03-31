@@ -1,0 +1,28 @@
+# app/views/users/index.html.erb
+<h1>All Users</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Date Created</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.user_name %></td>
+        <td><%= user.role %></td>
+        <td><%= user.created_at.strftime('%B %d, %Y') %></td>
+        <td>
+          <%= link_to "View", user_path(user), class: "btn btn-sm btn-info" %>
+          <%= link_to "Edit", edit_user_path(user), class: "btn btn-sm btn-warning" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Back to Dashboard", root_path, class: "btn btn-primary" %>
