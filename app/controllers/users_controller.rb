@@ -4,6 +4,10 @@ class UsersController < ApplicationController
   before_action :require_login, except: [:new, :create]
   before_action :require_same_user, only: [:edit, :update, :show]
 
+  def index
+    @users = User.all
+  end
+
   def new
     @user = User.new
     @user.build_profile  # Initialize a new profile for the form
