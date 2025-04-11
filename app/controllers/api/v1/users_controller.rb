@@ -31,7 +31,8 @@ module Api
           
           if params[:user][:profile_attributes].present? && params[:user][:profile_attributes][:avatar].present?
             @user.profile.avatar.purge if @user.profile.avatar.attached?
-            @user.profile.avatar.attach(params[:user][:profile_attributes][:avatar])
+            # Add analyze: false to prevent background job creation
+            @user.profile.avatar.attach(params[:user][:profile_attributes][:avatar], analyze: false)
           end
           
           if @user.save
