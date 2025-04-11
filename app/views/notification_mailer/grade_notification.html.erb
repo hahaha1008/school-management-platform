@@ -1,0 +1,13 @@
+<!-- app/views/notification_mailer/grade_notification.html.erb -->
+<h1>Your Assignment Has Been Graded</h1>
+
+<p>Hello <%= @user.user_name %>,</p>
+
+<p>Your submission for "<%= @assignment.ass_title %>" in the course "<%= @course.course_name %>" has been graded.</p>
+
+<p>Your grade: <strong><%= @submission.grade %></strong></p>
+
+<p>You can view your submission and feedback by logging into the McMaster Student Management System.</p>
+
+<p>Thanks,<br>
+McMaster Student Management Team</p>

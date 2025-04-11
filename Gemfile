@@ -22,11 +22,23 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
+# Gemfile
+gem 'devise'
+gem 'devise-jwt'  # For JWT token authentication in API
+gem 'rack-cors'
+gem 'action_policy'
+gem 'jwt'
+
 group :development do
   gem "web-console"
+  gem 'letter_opener'
 end
 
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem 'image_processing', '~> 1.2'
+
+gem 'active_storage_validations'

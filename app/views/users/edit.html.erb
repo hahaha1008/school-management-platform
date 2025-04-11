@@ -6,7 +6,7 @@
         <h2 class="text-center">Edit Profile</h2>
       </div>
       <div class="card-body">
-        <%= form_with model: @user, local: true do |f| %>
+        <%= form_with model: @user, local: true, html: { multipart: true } do |f| %>
           <% if @user.errors.any? %>
             <div class="alert alert-danger">
               <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
@@ -31,10 +31,9 @@
           <% if current_user.admin? %>
             <div class="mb-3">
               <%= f.label :role, class: "form-label" %>
-              <%= f.select :role, [['Student', 'student'], ['Instructor', 'instructor'], ['Admin', 'admin']], 
-                          { include_blank: 'Select Role' }, { class: "form-select", required: true } %>
+              <%= f.select :role, [['Student', 'student'], ['Instructor', 'instructor'], ['Admin', 'admin']],
+                { include_blank: 'Select Role' }, { class: "form-select", required: true } %>
             </div>
-            
             <div class="mb-3">
               <%= f.label :expire_date, class: "form-label" %>
               <%= f.date_field :expire_date, class: "form-control" %>
@@ -42,7 +41,6 @@
           <% end %>
           
           <h4 class="mt-4">Profile Information</h4>
-          
           <%= f.fields_for :profile do |profile_form| %>
             <div class="mb-3">
               <%= profile_form.label :phone_num, "Phone Number", class: "form-label" %>
@@ -60,6 +58,17 @@
                 <%= profile_form.text_field :major, class: "form-control", required: true %>
               </div>
             <% end %>
+            
+            <div class="mb-3">
+  <%= profile_form.label :avatar, "Profile Picture", class: "form-label" %>
+  <% if @user.profile&.avatar&.attached? && !@user.profile.avatar.blob.new_record? %>
+    <div class="mb-2">
+      <%= image_tag @user.profile.avatar.variant(resize_to_limit: [150, 150]), class: "img-thumbnail rounded-circle" %>
+    </div>
+  <% end %>
+  <%= profile_form.file_field :avatar, class: "form-control" %>
+  <small class="form-text text-muted">Max file size: 5MB. Supported formats: JPG, PNG, GIF.</small>
+</div>
           <% end %>
           
           <div class="d-flex justify-content-between">

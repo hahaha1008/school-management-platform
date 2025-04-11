@@ -1,0 +1,16 @@
+<!-- app/views/notification_mailer/new_assignment_notification.html.erb -->
+<h1>New Assignment Posted</h1>
+
+<p>Hello <%= @user.user_name %>,</p>
+
+<p>A new assignment has been posted for your course "<%= @course.course_name %>":</p>
+
+<p><strong><%= @assignment.ass_title %></strong></p>
+<p><%= @assignment.ass_description %></p>
+
+<p>Due date: <strong><%= @assignment.due_date.strftime("%B %d, %Y at %I:%M %p") %></strong></p>
+
+<p>Please log in to the McMaster Student Management System to view the full details and submit your work.</p>
+
+<p>Thanks,<br>
+McMaster Student Management Team</p>

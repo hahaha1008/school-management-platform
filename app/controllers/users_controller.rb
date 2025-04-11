@@ -37,12 +37,16 @@ class UsersController < ApplicationController
   end
   
   def update
-    # This method needs fixing
-    if @user.update(user_params)
-      # Success case
+    if params.dig(:user, :profile_attributes, :avatar).present?
+      # Purge any existing avatar first
+      @user.profile.avatar.purge if @user.profile.avatar.attached?
+      # Attach the new avatar
+      @user.profile.avatar.attach(params[:user][:profile_attributes][:avatar])
+    end
+    
+    if @user.update(user_params.except(:profile_attributes => [:avatar]))
       redirect_to @user, notice: "Profile successfully updated!"
     else
-      # Failure case
       render :edit
     end
   end
@@ -54,13 +58,12 @@ class UsersController < ApplicationController
   end
   
   def user_params
-    # Make sure to permit nested profile attributes
     params.require(:user).permit(
-      :user_name, 
-      :password, 
-      :role, 
+      :user_name,
+      :password,
+      :role,
       :expire_date,
-      profile_attributes: [:id, :phone_num, :address, :major]
+      profile_attributes: [:id, :phone_num, :address, :major, :avatar]
     )
   end
 

@@ -1,0 +1,44 @@
+<!-- app/views/submissions/show.html.erb -->
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2>Assignment Submission</h2>
+      <div>
+        <%= link_to 'Back to Assignment', course_assignment_path(@course, @assignment), class: 'btn btn-secondary' %>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h4>Submission Details</h4>
+          <p><strong>Course:</strong> <%= @assignment.course.course_name %></p>
+          <p><strong>Assignment:</strong> <%= @assignment.ass_title %></p>
+          <p><strong>Student:</strong> <%= @submission.user.user_name %></p>
+          <p><strong>Submitted:</strong> <%= @submission.submit_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+          <% if @submission.grade %>
+            <p><strong>Grade:</strong> <span class="badge bg-success"><%= @submission.grade %></span></p>
+          <% else %>
+            <p><strong>Status:</strong> <span class="badge bg-warning text-dark">Not graded yet</span></p>
+          <% end %>
+        </div>
+        
+        <% if current_user.instructor? || current_user.admin? %>
+          <div class="col-md-6">
+            <h4>Grading</h4>
+            <%= form_with url: grade_course_assignment_submission_path(@course, @assignment, @submission), method: :patch, local: true do |f| %>
+              <div class="input-group mb-3">
+                <%= f.number_field :grade, value: @submission.grade, class: 'form-control', placeholder: 'Enter grade (0-100)', min: 0, max: 100 %>
+                <%= f.submit 'Save Grade', class: 'btn btn-primary' %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      
+      <h4>Submission Content</h4>
+      <div class="submission-content p-3 border rounded">
+        <%= simple_format(@submission.content) %>
+      </div>
+    </div>
+  </div>
+</div>

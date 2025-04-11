@@ -33,6 +33,16 @@ class SubmissionsController < ApplicationController
 
    
     def show
+      @course = Course.find(params[:course_id])
+      @assignment = @course.assignments.find(params[:assignment_id])
+      @submission = @assignment.submissions.find(params[:id])
+      
+      # Authorize access
+      unless current_user.admin? || current_user.id == @submission.user_id || 
+             current_user.id == @assignment.course.instructor_id
+        redirect_to course_assignment_path(@course, @assignment), 
+                    alert: "You do not have permission to view this submission."
+      end
     end
     
     def edit

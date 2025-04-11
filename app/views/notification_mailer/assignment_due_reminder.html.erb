@@ -1,0 +1,13 @@
+<!-- app/views/notification_mailer/assignment_due_reminder.html.erb -->
+<h1>Assignment Due Reminder</h1>
+
+<p>Hello <%= @user.user_name %>,</p>
+
+<p>This is a reminder that the assignment "<%= @assignment.ass_title %>" for your course "<%= @course.course_name %>" is due soon.</p>
+
+<p>Due date: <strong><%= @assignment.due_date.strftime("%B %d, %Y at %I:%M %p") %></strong></p>
+
+<p>Please make sure to submit your work before the deadline.</p>
+
+<p>Thanks,<br>
+McMaster Student Management Team</p>

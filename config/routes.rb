@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -14,11 +15,33 @@ post 'login', to: 'sessions#create'
 delete 'logout', to: 'sessions#destroy'
 get 'logout', to: 'sessions#destroy'
 
+
+namespace :api do
+  namespace :v1 do
+    resources :users, only: [:show, :update]
+    resources :courses, only: [:index, :show] do
+      resources :assignments, only: [:index, :show] do
+        resources :submissions, only: [:create, :show, :update]
+      end
+    end
+    # Authentication routes
+    post 'login', to: 'authentication#login'
+    post 'register', to: 'authentication#register'
+  end
+end
+
+
 # Dashboard route
 get 'dashboard', to: 'home#dashboard'
 
 # Resources
 resources :users
+
+resources :profiles, only: [:show] do
+  member do
+    patch :update_avatar
+  end
+end
 
 # Nested resources
 resources :courses do

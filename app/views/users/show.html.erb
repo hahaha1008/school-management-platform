@@ -8,6 +8,14 @@
   </div>
   <div class="card-body">
     <div class="row">
+    <div class="col-md-3 text-center mb-3">
+    <% if @user.profile&.avatar&.attached? %>
+      <%= image_tag @user.profile.avatar.variant(resize_to_limit: [200, 200]), class: "img-thumbnail rounded-circle mb-2", style: "width: 200px; height: 200px; object-fit: cover;" %>
+    <% else %>
+      <%= image_tag "default_avatar.png", class: "img-thumbnail rounded-circle mb-2", style: "width: 200px; height: 200px; object-fit: cover;" %>
+    <% end %>
+  </div>
+  
       <div class="col-md-6">
         <h3 class="mb-3">Account Information</h3>
         <p><strong>Username:</strong> <%= @user.user_name %></p>
